@@ -25,8 +25,9 @@ $this->registerCss('#lang-menu{
     max-height: 200px;
 }#search-lang{
     display: block;
+    position: relative;
     width: 100%;
-    padding: .25rem 1rem;
+    padding: .7rem 1rem;
     clear: both;
     font-weight: 400;
     color: #212529;
@@ -64,7 +65,6 @@ if (!empty($languages)) {
     <?php Modal::begin([
         'id' => 'main-modal',
         'size' => Modal::SIZE_LARGE,
-        'closeButton' => false,
         'clientEvents' => [
             'show.bs.modal' => 'function (e) {
                     $("#main-modal").addClass("show");
@@ -90,14 +90,6 @@ if (!empty($languages)) {
 
         $menuItemsLeft[] = ['label' => '<i class="fa fa-bars"></i>', 'url' => '#', 'options' => ['class' => 'nav-item', 'data-widget' => 'pushmenu'], 'linkOptions' => ['class' => 'nav-link'], 'encode' => false];
 
-        $menuItemsRight[] = [
-            'label' => Html::tag('span', strtoupper(Yii::$app->language)),
-            'items' => $langOpt,
-            'encode' => FALSE,
-            'dropDownOptions' => ['id' => 'lang-menu'],
-            'options' => ['class' => 'nav-item'],
-            'linkOptions' => ['class' => 'nav-link'],
-        ];
         $menuItemsRight[] = [
             'label' => Gravatar::widget([
                 'email' => Yii::$app->user->identity->email,
@@ -142,9 +134,38 @@ if (!empty($languages)) {
         echo Nav::widget([
             'options' => ['class' => 'navbar-nav'],
             'items' => $menuItemsLeft,
-        ]);
-        echo Nav::widget([
-            'options' => ['class' => 'navbar-nav ml-auto'],
+        ]); ?>
+        
+        <div class="dropdown dropdown-inner ml-auto">
+            <a class="nav-link dropdown-toggle dropbtn dropbtn-inner" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <?= strtoupper(Yii::$app->language) ?>
+            </a>
+
+            <div id="myDropdown" class="dropdown-menu dropdown-menu-inner" aria-labelledby="dropdownMenuLink">
+                <div class="search-container">
+                <input type="text" id="search-lang" onkeyup="getLanguage()" placeholder="Search..">
+                <button type="button"><i class="fa fa-search"></i></button>
+                </div>
+
+                <div class="dropdown-container">
+                <?php
+
+                //List of language options
+                $languages = \app\models\Language::find()->orderBy(['name_ascii' => SORT_ASC])->all();
+
+                if (!empty($languages)) {
+                    foreach ($languages as $language) {
+                        //Check if the language is the active
+                        $active = ($language->code == Yii::$app->language) ? 'active' : null;
+                        echo Html::a($language->name_ascii, Yii::$app->urlManager->createUrl(['site/change-language', 'lang' => $language->code]), ['class' => ['dropdown-item', $active]]);
+                    }
+                } ?>
+                </div>
+            </div>
+        </div>
+
+        <?php echo Nav::widget([
+            'options' => ['class' => 'navbar-nav'],
             'items' => $menuItemsRight,
         ]);
         NavBar::end();
@@ -286,8 +307,8 @@ $leftMenuItems = [
             'examples/tables',
             'examples/calendar',
             'examples/gallery',
-            'examples/phpinfo',
-            'examples/mysqlvar',
+            'examples/php-info',
+            'examples/mysql-info',
         ],
         'items' => [
             [
@@ -464,16 +485,16 @@ $leftMenuItems = [
                 'route' => '/examples/gallery',
             ],
             [
-                'title' => 'PHPinfo()',
+                'title' => 'PHP Info',
                 'icon' => 'far fa-circle',
-                'url' => 'examples/phpinfo',
-                'route' => '/examples/phpinfo',
+                'url' => 'examples/php-info',
+                'route' => '/examples/php-info',
             ],
             [
-                'title' => 'MySQL Variables',
-                'icon' => 'fas fa-database',
-                'url' => 'examples/mysqlvar',
-                'route' => '/examples/mysqlvar',
+                'title' => 'MySQL Info',
+                'icon' => 'far fa-circle',
+                'url' => 'examples/mysql-info',
+                'route' => '/examples/mysql-info',
             ],
         ],
     ],
